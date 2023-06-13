@@ -19,8 +19,9 @@ public class BankTest {
 
     @BeforeEach
     public void setup() {
-        bank = new BankImpl();
         accountDao = new AccountDaoJpaImpl();
+        bank = new BankImpl(accountDao);
+
     }
 
     @AfterEach
@@ -30,38 +31,32 @@ public class BankTest {
             accountDao.delete(u);
     }
 
-//    @Test
-//    public void testDao() {
-//
-//        ;
-//
-//    }
-
-
-//    @Test
-//    public void testCreate() {
-//        BankImpl bank = new BankImpl();
-//        assert bank.createAccount( "nazwa", "adres") == 1;
-//        assert bank.createAccount( "nazwa", "adres") == 1;
-//        assert bank.createAccount( "nazwa1", "adres2") == 2;
-//    }
+    @Test
+    public void testCreate() {
+        //BankImpl bank = new BankImpl();
+        assert bank.createAccount( "nazwa", "adres") == 1;
+        assert bank.createAccount( "nazwa", "adres") == 1;
+        assert bank.createAccount( "nazwa1", "adres2") == 2;
+    }
 
     @Test
     public void testFind(){
+        //BankImpl bank = new BankImpl();
         bank.createAccount( "nazwa", "adres");
         bank.createAccount( "nazwa1", "adres2");
         bank.createAccount( "DDD", "AAA");
         bank.createAccount( "sss", "sssss");
         bank.createAccount( "aaa", "fff");
-        for (Account acc: bank.listAccount){
-            accountDao.save(acc);
-        }
-
-        accountDao.findAll();
         assert bank.findAccount("nazwa", "adres") == 1;
         assert bank.findAccount("aaa", "fff") == 5;
         assert bank.findAccount("nazwa3", "adres333") == null;
 
+    }
+
+    @Test
+    public void testBalance(){
+        bank.createAccount( "nazwa", "adres");
+        assert bank.getBalance(1L) == BigDecimal.valueOf(0);
     }
 
     @Test
@@ -71,16 +66,9 @@ public class BankTest {
         bank.createAccount( "nazwa", "adres");
         bank.createAccount( "nazwa2", "adres2");
 
-        for (Account acc: bank.listAccount){
-            accountDao.save(acc);
-        }
-
-        accountDao.findAll();
         bank.deposit(1L, BigDecimal.valueOf(30));
         bank.deposit(1L, BigDecimal.valueOf(100));
         bank.deposit(2L, BigDecimal.valueOf(40));
-        Optional<Account> acc = accountDao.findById(1L);
-        //accountDao.update(acc);
 
         Assertions.assertThrows(Bank.AccountIdException.class, ()-> {bank.deposit(3L,  BigDecimal.valueOf(200));});
 
@@ -93,7 +81,7 @@ public class BankTest {
 
     @Test
     public void testWithdraw(){
-        BankImpl bank = new BankImpl();
+        //BankImpl bank = new BankImpl();
         bank.createAccount( "nazwa", "adres");
         bank.createAccount( "nazwa2", "adres2"); //2L
         bank.deposit(2L, BigDecimal.valueOf(100));
@@ -107,7 +95,7 @@ public class BankTest {
 
     @Test
     public void testTransfer(){
-        BankImpl bank = new BankImpl();
+        //BankImpl bank = new BankImpl();
         bank.createAccount( "nazwa1", "adres1"); //1L
         bank.createAccount( "nazwa2", "adres2"); //2L
         bank.deposit(1L, BigDecimal.valueOf(100));
