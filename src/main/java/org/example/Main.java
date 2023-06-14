@@ -17,9 +17,9 @@ public class Main {
             System.out.println("accounts:");
             acc.forEach(System.out::println);
         }else{
-            Account b = new Account("Kama", "Choroszcz", 2L);
-            Account c = new Account("Bober", "Storczykowa3", 3L);
-            Account d = new Account("Chmielu", "Zakatek3", 4L);
+            Account b = new Account(null, "Kama", "Choroszcz");
+            Account c = new Account(null, "Bober", "Storczykowa3");
+            Account d = new Account(null, "Chmielu", "Zakatek3");
 
             dao.save(b);
             dao.save(c);

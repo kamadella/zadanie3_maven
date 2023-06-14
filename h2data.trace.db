@@ -79,3 +79,7 @@ CALL NEXT VALUE FOR SEQ_GEN_SEQUENCE [90036-210]
 	at org.example.dao.GenericDaoJpaImpl.getEntityManager(GenericDaoJpaImpl.java:73)
 	at org.example.dao.GenericDaoJpaImpl.save(GenericDaoJpaImpl.java:27)
 	at org.example.Main.main(Main.java:13)
+2023-06-14 13:12:29 jdbc[4]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabela "ACCOUNTOPERATION" nie istnieje
+Table "ACCOUNTOPERATION" not found; SQL statement:
+SELECT 1 FROM ACCOUNTOPERATION [42102-210]

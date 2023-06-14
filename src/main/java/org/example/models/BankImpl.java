@@ -27,7 +27,6 @@ public class BankImpl implements Bank{
         SimpleFormatter formatter = new SimpleFormatter();
         fh.setFormatter(formatter);
         listAccount = dao.findAll();
-//      ID = getLastId();
         logger.info("utworzenie instancji banku");
 
     }
@@ -38,10 +37,6 @@ public class BankImpl implements Bank{
     private FileHandler fh = null;
     public List<Account> listAccount;
 
-//    public Long getLastId(){
-//        return listAccount.isEmpty() ? 0 : listAccount.get(listAccount.size() - 1).getID();
-//
-//    }
 
     @Override
     public Long createAccount(String name, String address) {
@@ -49,16 +44,15 @@ public class BankImpl implements Bank{
         for (Account account: listAccount) {
             if (account.getName().equals(name) && account.getAddress().equals(address)){
                 //logger.fine("createAccount return: " + name);
-                return account.getID();
+                return account.getId();
             }
         }
 
-        ID++;
-        Account acc = new Account(name, address, ID);
+        Account acc = new Account(null, name, address);
         listAccount.add(acc);
         dao.save(acc);
         //logger.fine("createAccount create: " + name);
-        return ID;
+        return acc.getId();
     }
 
     @Override
@@ -67,7 +61,7 @@ public class BankImpl implements Bank{
         for (Account account: listAccount) {
             if (account.getName().equals(name) && account.getAddress().equals(address)){
                 //logger.fine("findAccount: name" + name );
-                return account.getID();
+                return account.getId();
             }
         }
         //logger.fine("findAccount: null");
@@ -76,7 +70,7 @@ public class BankImpl implements Bank{
 
     @Override
     public void deposit(Long id, BigDecimal amount) {
-        if (id == null || listAccount.size() < id) {
+        if (id == null) {
             //logger.log(Level.SEVERE, "AccountIdException" );
             throw new AccountIdException();
         }
@@ -84,6 +78,7 @@ public class BankImpl implements Bank{
         else{
             Account a = dao.findById(id).get(); //znajduje konto o podanym id
             a.setBalance(a.getBalance().add(amount));
+            a.addOperation(amount, OperationType.DEPOSIT );
             dao.update(a);
         }
     }
@@ -91,7 +86,7 @@ public class BankImpl implements Bank{
     @Override
     public BigDecimal getBalance(Long id) {
 
-        if (id == null || listAccount.size() < id) {
+        if (id == null) {
             //logger.log(Level.SEVERE, "AccountIdException" );
             throw new AccountIdException();
         }
@@ -105,7 +100,7 @@ public class BankImpl implements Bank{
     @Override
     public void withdraw(Long id, BigDecimal amount) {
 
-        if (id == null || listAccount.size() < id) {
+        if (id == null) {
             //logger.log(Level.SEVERE, "AccountIdException" );
             throw new AccountIdException();
         }
@@ -117,6 +112,7 @@ public class BankImpl implements Bank{
             }
             else {
                 a.setBalance(a.getBalance().subtract(amount));
+                a.addOperation(amount, OperationType.WITHDRAW );
                 dao.update(a);
             }
         }
@@ -128,7 +124,7 @@ public class BankImpl implements Bank{
         Account accountSource = new Account();
         Account accountDestination = new Account();
 
-        if (idSource == null || listAccount.size() < idSource || idDestination == null || listAccount.size() < idDestination) {
+        if (idSource == null || idDestination == null) {
             //logger.log(Level.SEVERE, "AccountIdException" );
             throw new AccountIdException();
         }
@@ -137,9 +133,9 @@ public class BankImpl implements Bank{
             accountSource = dao.findById(idSource).get(); //znajduje konto o podanym id
             accountDestination = dao.findById(idDestination).get(); //znajduje konto o podanym id
         }
-
-        withdraw(accountSource.getID(), amount);
-        deposit(accountDestination.getID(), amount);
+        accountSource.addOperation(amount, OperationType.TRANSFER );
+        withdraw(accountSource.getId(), amount);
+        deposit(accountDestination.getId(), amount);
         //logger.fine("transfer Source: " + idSource + " Destination: " +idDestination);
     }
 }

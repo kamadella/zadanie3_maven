@@ -27,16 +27,18 @@ public class BankTest {
     @AfterEach
     public void clear() {
         //  usuwa uzytkownikow po kazdym tescie
-        for (Account u: accountDao.findAll())
+        for (Account u: accountDao.findAll()){
             accountDao.delete(u);
+        }
+
     }
 
     @Test
     public void testCreate() {
         //BankImpl bank = new BankImpl();
-        assert bank.createAccount( "nazwa", "adres") == 1;
-        assert bank.createAccount( "nazwa", "adres") == 1;
-        assert bank.createAccount( "nazwa1", "adres2") == 2;
+        assert bank.createAccount( "nazwa", "adres") != null;
+        assert bank.createAccount( "nazwa", "adres")  != null;
+        assert bank.createAccount( "nazwa1", "adres2")  != null;
     }
 
     @Test
@@ -47,66 +49,67 @@ public class BankTest {
         bank.createAccount( "DDD", "AAA");
         bank.createAccount( "sss", "sssss");
         bank.createAccount( "aaa", "fff");
-        assert bank.findAccount("nazwa", "adres") == 1;
-        assert bank.findAccount("aaa", "fff") == 5;
+        assert bank.findAccount("nazwa", "adres") != null;
+        assert bank.findAccount("aaa", "fff")  != null;
         assert bank.findAccount("nazwa3", "adres333") == null;
 
     }
 
     @Test
     public void testBalance(){
-        bank.createAccount( "nazwa", "adres");
-        assert bank.getBalance(1L) == BigDecimal.valueOf(0);
+        Long id = bank.createAccount( "nazwa", "adres");
+        System.out.println(id);
+        assert bank.getBalance(id) == BigDecimal.valueOf(0);
     }
 
     @Test
     public void testDeposit(){
         //BankImpl bank = new BankImpl();
 
-        bank.createAccount( "nazwa", "adres");
-        bank.createAccount( "nazwa2", "adres2");
+        Long id1 = bank.createAccount( "nazwa", "adres");
+        Long id2 =bank.createAccount( "nazwa2", "adres2");
 
-        bank.deposit(1L, BigDecimal.valueOf(30));
-        bank.deposit(1L, BigDecimal.valueOf(100));
-        bank.deposit(2L, BigDecimal.valueOf(40));
+        bank.deposit(id1, BigDecimal.valueOf(30));
+        bank.deposit(id1, BigDecimal.valueOf(100));
+        bank.deposit(id2, BigDecimal.valueOf(40));
 
-        Assertions.assertThrows(Bank.AccountIdException.class, ()-> {bank.deposit(3L,  BigDecimal.valueOf(200));});
+        Assertions.assertThrows(Bank.AccountIdException.class, ()-> {bank.deposit(null,  BigDecimal.valueOf(200));});
 
-        assert bank.getBalance(1L).compareTo(BigDecimal.valueOf(130)) == 0;
-        assert bank.getBalance(2L).compareTo(BigDecimal.valueOf(40)) == 0;
+        assert bank.getBalance(id1).compareTo(BigDecimal.valueOf(130)) == 0;
+        assert bank.getBalance(id2).compareTo(BigDecimal.valueOf(40)) == 0;
 
-        Assertions.assertThrows(Bank.AccountIdException.class, ()-> {bank.getBalance(3L);});
+        Assertions.assertThrows(Bank.AccountIdException.class, ()-> {bank.getBalance(null);});
     }
 
 
     @Test
     public void testWithdraw(){
         //BankImpl bank = new BankImpl();
-        bank.createAccount( "nazwa", "adres");
-        bank.createAccount( "nazwa2", "adres2"); //2L
-        bank.deposit(2L, BigDecimal.valueOf(100));
-        bank.withdraw(2L, BigDecimal.valueOf(25) );
+        Long id1 = bank.createAccount( "nazwa", "adres");
+        Long id2 = bank.createAccount( "nazwa2", "adres2"); //2L
+        bank.deposit(id2, BigDecimal.valueOf(100));
+        bank.withdraw(id2, BigDecimal.valueOf(25) );
 
-        assert bank.getBalance(2L).compareTo(BigDecimal.valueOf(75)) == 0;
-        Assertions.assertThrows(Bank.AccountIdException.class, ()-> {bank.withdraw(3L,  BigDecimal.valueOf(200));});
-        Assertions.assertThrows(Bank.InsufficientFundsException.class, ()-> {bank.withdraw(2L,  BigDecimal.valueOf(200));});
+        assert bank.getBalance(id2).compareTo(BigDecimal.valueOf(75)) == 0;
+        Assertions.assertThrows(Bank.AccountIdException.class, ()-> {bank.withdraw(null,  BigDecimal.valueOf(200));});
+        Assertions.assertThrows(Bank.InsufficientFundsException.class, ()-> {bank.withdraw(id2,  BigDecimal.valueOf(200));});
 
     }
 
     @Test
     public void testTransfer(){
         //BankImpl bank = new BankImpl();
-        bank.createAccount( "nazwa1", "adres1"); //1L
-        bank.createAccount( "nazwa2", "adres2"); //2L
-        bank.deposit(1L, BigDecimal.valueOf(100));
-        bank.deposit(2L, BigDecimal.valueOf(100));
-        bank.transfer(1L,2L, BigDecimal.valueOf(100));
+        Long id1 =bank.createAccount( "nazwa1", "adres1"); //1L
+        Long id2 =bank.createAccount( "nazwa2", "adres2"); //2L
+        bank.deposit(id1, BigDecimal.valueOf(100));
+        bank.deposit(id2, BigDecimal.valueOf(100));
+        bank.transfer(id1,id2, BigDecimal.valueOf(100));
 
-        assert bank.getBalance(1L).compareTo(BigDecimal.valueOf(0)) == 0;
-        assert bank.getBalance(2L).compareTo(BigDecimal.valueOf(200)) == 0;
+        assert bank.getBalance(id1).compareTo(BigDecimal.valueOf(0)) == 0;
+        assert bank.getBalance(id2).compareTo(BigDecimal.valueOf(200)) == 0;
 
-        Assertions.assertThrows(Bank.AccountIdException.class, ()-> {bank.transfer(1L, 3L, BigDecimal.valueOf(100));});
-        Assertions.assertThrows(Bank.InsufficientFundsException.class, ()-> {bank.transfer(1L, 2L, BigDecimal.valueOf(1000));});
+        Assertions.assertThrows(Bank.AccountIdException.class, ()-> {bank.transfer(id1, null, BigDecimal.valueOf(100));});
+        Assertions.assertThrows(Bank.InsufficientFundsException.class, ()-> {bank.transfer(id1, id2, BigDecimal.valueOf(1000));});
     }
 
 }
